@@ -1,10 +1,14 @@
 FROM python:3.9-slim
 WORKDIR /app
 
-# 修正：直接安裝 OpenClaw 套件
-RUN pip install --no-cache-dir OpenClaw requests
+# 安裝必要工具
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
+# 直接從 GitHub 下載 OpenClaw 原始碼並安裝
+# 注意：這裡使用 OpenClaw 官方倉庫的 zip 連結
+RUN pip install --no-cache-dir https://github.com/idootop/openclaw/archive/refs/heads/main.zip requests
 
 EXPOSE 8080
 
-# 確保加上跳過設定的參數
+# 啟動並跳過認證
 CMD ["openclaw", "gateway", "--host", "0.0.0.0", "--port", "8080", "--allow-unconfigured"]
