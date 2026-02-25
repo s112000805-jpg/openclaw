@@ -1,14 +1,13 @@
-FROM python:3.10-slim
-LABEL "language"="python"
 
+FROM python:3.9-slim
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# 1. 下載 git 並從官方源抓取完整的 OpenClaw
+RUN apt-get update && apt-get install -y git && \
+    git clone https://github.com/idootop/openclaw.git .
 
-RUN git clone https://github.com/idootop/openclaw.git . && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt
+# 2. 安裝官方對應的依賴套件
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8080
-
-CMD ["python", "-m", "openclaw.gateway"]
+# 3. 啟動網關
+CMD ["python", "openclaw/gateway.py", "--host", "0.0.0.0", "--port", "8080", "--allow-unconfigured"]
