@@ -1,14 +1,14 @@
-ROM python:3.10-slim
+FROM python:3.10-slim
 LABEL "language"="python"
-LABEL "framework"="flask"
 
 WORKDIR /app
 
-COPY . .
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip && \
+RUN git clone https://github.com/idootop/openclaw.git . && \
+    pip install --upgrade pip && \
     pip install -r requirements.txt
 
 EXPOSE 8080
 
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=8080"]
+CMD ["python", "-m", "openclaw.gateway"]
