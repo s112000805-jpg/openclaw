@@ -1,11 +1,14 @@
-FROM python:3.9-slim
+ROM python:3.10-slim
+LABEL "language"="python"
+LABEL "framework"="flask"
+
 WORKDIR /app
 
-# 1. 安裝 git 並從官方倉庫補齊核心代碼
-RUN apt-get update && apt-get install -y git && \
-    git clone https://github.com/idootop/openclaw.git . && \
-    pip install --upgrade pip && \
+COPY . .
+
+RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# 2. 啟動指令：監聽 8080 端口
-CMD ["python", "openclaw/gateway.py", "--host", "0.0.0.0", "--port", "8080", "--allow-unconfigured"]
+EXPOSE 8080
+
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=8080"]
