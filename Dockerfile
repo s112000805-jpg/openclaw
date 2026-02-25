@@ -1,4 +1,8 @@
 FROM python:3.9-slim
+
+# 安裝 Git，因為有些 OpenClaw 插件可能需要從 Git 抓取
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # 1. 複製檔案
@@ -6,12 +10,14 @@ COPY . .
 
 # 2. 安裝套件
 RUN pip install --upgrade pip && \
-    pip install requests flask pydantic openai
+    pip install -r requirements.txt
+
+# 3. 環境變數設定：確保 Python 能找到 openclaw 資料夾
+# 假設您的結構是 happyfarm-openclaw/openclaw
+ENV PYTHONPATH="/app:/app/openclaw"
 
 EXPOSE 8080
 
-# 3. 暴力尋找並執行：
-# find . -name "gateway.py" 會找到路徑 (例如 ./openclaw/gateway.py)
-# head -n 1 確保只抓第一個找到的
-# xargs 把它傳給 python 執行
-CMD ["/bin/sh", "-c", "START_FILE=$(find . -name 'gateway.py' | head -n 1); if [ -n \"$START_FILE\" ]; then python \"$START_FILE\" --host 0.0.0.0 --port 8080 --allow-unconfigured; else echo '錯誤：找不到 gateway.py'; exit 1; fi"]
+# 4. 啟動指令：直接呼叫 python 執行 gateway.py
+# 這是最不容易出錯的方式
+CMD ["python", "openclaw/gateway.py", "--host", "0.0.0.0", "--port", "8080", "--allow-unconfigured"]
