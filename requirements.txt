@@ -1,2 +1,5 @@
-git+https://github.com/vllm-project/openclaw.git
+flask
+pydantic
+openai
 requests
+python-dotenv
